@@ -47,9 +47,7 @@ module BestInPlace
       out << " data-attribute='#{field}'"
       out << " data-activator='#{opts[:activator]}'" unless opts[:activator].blank?
       out << " data-ok-button='#{opts[:ok_button]}'" unless opts[:ok_button].blank?
-      out << " data-ok-button-class='#{opts[:ok_button_class]}'" unless opts[:ok_button_class].blank?
       out << " data-cancel-button='#{opts[:cancel_button]}'" unless opts[:cancel_button].blank?
-      out << " data-cancel-button-class='#{opts[:cancel_button_class]}'" unless opts[:cancel_button_class].blank?
       out << " data-nil='#{attribute_escape(opts[:nil])}'" unless opts[:nil].blank?
       out << " data-use-confirm='#{opts[:use_confirm]}'" unless opts[:use_confirm].nil?
       out << " data-type='#{opts[:type]}'"
@@ -88,12 +86,11 @@ module BestInPlace
     def build_value_for(object, field, opts)
       return "" if object.send(field).blank?
 
-      klass = if object.respond_to?(:id)
-        "#{object.class}_#{object.id}"
+      if (object.respond_to?(:id))
+        klass = "#{object.class}_#{object.id}"
       else
-        object.class.to_s
+        klass = object.class.to_s
       end
-
       if opts[:display_as]
         BestInPlace::DisplayMethods.add_model_method(klass, field, opts[:display_as])
         object.send(opts[:display_as]).to_s
@@ -101,7 +98,6 @@ module BestInPlace
       elsif opts[:display_with].try(:is_a?, Proc)
         BestInPlace::DisplayMethods.add_helper_proc(klass, field, opts[:display_with])
         opts[:display_with].call(object.send(field))
-
       elsif opts[:display_with]
         BestInPlace::DisplayMethods.add_helper_method(klass, field, opts[:display_with], opts[:helper_options])
         if opts[:helper_options]
@@ -111,7 +107,7 @@ module BestInPlace
         end
 
       else
-        object.send(field).to_s
+        object.send(field).to_s.presence || ""
       end
     end
 
